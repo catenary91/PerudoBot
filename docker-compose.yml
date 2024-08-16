@@ -1,0 +1,6 @@
+services:
+  perudo-bot:
+    image: perudo_bot
+    pull_policy: never
+    build: .
+    
