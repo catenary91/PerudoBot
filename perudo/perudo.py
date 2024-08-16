@@ -6,7 +6,6 @@ from .recruit import PerudoRecruitManager
 from .game import PerudoGameManager
 
 
-
 class Perudo(commands.Cog):
     recruits: dict[int, PerudoRecruitManager] = {}
     games: dict[int, PerudoGameManager] = {}
@@ -24,7 +23,8 @@ class Perudo(commands.Cog):
             await itc.response.send_message('게임이 이미 모집 중입니다.', ephemeral=True)
             return
         
-        manager = PerudoRecruitManager(itc.user)
+        await itc.response.defer()
+        manager = PerudoRecruitManager(itc)
         self.recruits[itc.channel_id] = manager
         await manager.recruit(itc)
 
@@ -47,12 +47,11 @@ class Perudo(commands.Cog):
         max_dice = 주사위
 
         if max_dice not in [4, 5, 6, 7]:
-            await itc.response.send_message('주사위의 개수는 4개, 5개, 6개, 7개 중에 선택 가능합니다.')
+            await itc.response.send_message('주사위의 개수는 4개, 5개, 6개, 7개 중에 선택 가능합니다.', ephemeral=True)
             return
 
-
         await manager.delete_msg()
-        game = PerudoGameManager(manager.members, max_dice)
+        game = PerudoGameManager(manager.players, max_dice)
         self.games[itc.channel_id] = game
         self.recruits.pop(itc.channel_id)
         await game.start(itc)

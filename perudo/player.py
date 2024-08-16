@@ -4,12 +4,12 @@ import random
 from .betting import PerudoBetting
 
 class PerudoPlayer():
-    def __init__(self, member: discord.Member, max_dice: int):
-        self.member = member
-        self.mention = member.mention
-        self.id = member.id
-        self.max_dice = max_dice
-        self.num_dice = max_dice
+    def __init__(self, itc: discord.Interaction):
+        self.id = itc.user.id
+        self.member = itc.user
+        self.mention = itc.user.mention
+        self.itc = itc
+        self.num_dice = -1
 
     def roll_dice(self):
         self.dices = []
@@ -25,3 +25,6 @@ class PerudoPlayer():
 
     def dice_info(self):
         return ''.join(PerudoBetting.dice_label[dice] for dice in self.dices)
+    
+    def __eq__(self, other):
+        return self.id == other.id

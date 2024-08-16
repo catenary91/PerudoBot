@@ -25,7 +25,7 @@ class PerudoBetting:
         return isinstance(other, PerudoBetting) and self.num == other.num and self.dice == other.dice
     
     def __str__(self):
-        return f'{self.dice_label[self.dice]} {self.num}개'
+        return f'{self.dice_label[self.dice]} `{self.num}개`'
 
 
 def flatten(xss):
@@ -46,7 +46,7 @@ class PerudoBettingManager:
         if self.prev == None: # first betting
             num_options = self.num_options[:20]
         elif self.prev.dice == 1: # previous betting is perudo
-            idx = self.num_labels.index(str(self.prev.dice * 2)) + 1
+            idx = self.num_labels.index(str(self.prev.num * 2))
             num_options = self.num_options[idx:idx+20]
         elif self.prev.dice == 6: # previous betting is 6
             idx = self.num_labels.index(str(self.prev.num)) + 1
@@ -56,6 +56,7 @@ class PerudoBettingManager:
             num_options = self.num_options[idx:idx+20]
 
         self.num_select = ui.Select(placeholder='주사위 개수', options=num_options, row=0)
+
         self.num_select.callback = self.select_num
         self.view.add_item(self.num_select)
         
@@ -78,13 +79,22 @@ class PerudoBettingManager:
             await self.callback(itc, PerudoBetting(num, dice))
             return
         
-        self.num_select.placeholder = self.num_select.values[0] + '개'    
-        self.dice_select = ui.Select(placeholder='주사위 눈', options=self.dice_options, row=1)
+        self.num_select.placeholder = self.num_select.values[0] + '개' 
+
+        current_num = int(num_select)
+        if self.prev and self.prev.num == current_num and self.prev.dice in [2, 3, 4, 5]:   
+            self.dice_select = ui.Select(placeholder='주사위 눈', options=self.dice_options[self.prev.dice-1:], row=1)
+        else:
+            self.dice_select = ui.Select(placeholder='주사위 눈', options=self.dice_options, row=1)
+
         self.dice_select.callback = self.select_dice
         self.view.clear_items()
         self.view.add_item(self.num_select)
         self.view.add_item(self.dice_select)
         
+        if self.prev:
+            self.view.add_item(self.less_btn)
+            self.view.add_item(self.equal_btn)
 
         await itc.response.edit_message(content='주사위의 눈을 선택해주세요.', view=self.view)
 

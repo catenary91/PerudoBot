@@ -1,13 +1,13 @@
 import discord
 from discord import ui
 
-from event_queue import run_queue, stop_queue
-import event_queue
+from .player import PerudoPlayer
 
 class PerudoRecruitManager:
-    def __init__(self, starter: discord.Member):
-        self.starter = starter
-        self.members = [starter]
+    def __init__(self, itc: discord.Interaction):
+        self.starter = itc.user
+        self.members = [itc.user]
+        self.players = [PerudoPlayer(itc)]
 
     async def recruit(self, itc: discord.Interaction):
         embed = self.create_embed()
@@ -19,7 +19,7 @@ class PerudoRecruitManager:
         view.add_item(apply_btn)
         view.add_item(apply_cancel_btn)
 
-        await itc.response.send_message(embed=embed, view=view)
+        await itc.followup.send(embed=embed, view=view)
         async for msg in itc.channel.history(limit=1):
             self.msg = msg
 
@@ -38,9 +38,9 @@ class PerudoRecruitManager:
             await itc.response.send_message('이미 게임에 참여중입니다.', ephemeral=True)
         else:
             self.members.append(itc.user)
+            self.players.append(PerudoPlayer(itc))
             await itc.message.edit(embed=self.create_embed())
             await itc.response.defer()
-            await run_queue(itc)
     
     async def cancel_apply(self, itc: discord.Interaction):
         if self.starter == itc.user:
@@ -49,8 +49,9 @@ class PerudoRecruitManager:
 
         if itc.user in self.members:
             self.members.remove(itc.user)
+            self.players.remove(PerudoPlayer(itc))
             await itc.response.edit_message(embed=self.create_embed())
-            stop_queue(itc.user.id)
+
         else:
             await itc.response.send_message('게임에 참여중이 아닙니다.', ephemeral=True)
 
