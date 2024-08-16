@@ -27,8 +27,10 @@ async def sync(ctx: commands.Context):
     
 @bot.command(name='reset')
 async def reset(ctx: commands.Context):
-    Perudo.games.clear()
-    Perudo.recruits.clear()
+    if ctx.channel.id in Perudo.games:
+        del Perudo.games[ctx.channel.id]
+    if ctx.channel.id in Perudo.recruits:
+        del Perudo.recruits[ctx.channel.id]
     print('reset complete')
 
 @bot.command(name='thread-test')

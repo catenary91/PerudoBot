@@ -47,7 +47,7 @@ class PerudoGame:
     async def start_betting(self, itc: discord.Interaction):
         description = '\nㅤ\n'.join([
             f'{itc.user.mention}님의 베팅 차례입니다.',
-            f'**현재 베팅:**ㅤ{self.current_betting}' if self.current_betting else '',
+            f'**현재 베팅:**ㅤ{self.current_betting}\nㅤ' if self.current_betting else '',
         ])
         await self.update_embed(itc, description)
 
@@ -90,7 +90,7 @@ class PerudoGame:
             f'{winner.mention}님이 주사위 1개를 얻었습니다.\nㅤ' if gain_dice else ''
         ])
         
-        await self.update_embed(itc, description, True)
+        await self.update_embed(itc, description, reveal_dice=True, color=0x1bd951 if correct else 0xf23f3f)
 
         # actual dice change is after the embed
         if gain_dice:
@@ -107,11 +107,11 @@ class PerudoGame:
         await self.start(loser.itc)
         
 
-    async def update_embed(self, itc: discord.Interaction, description: str, reveal_dice: bool = False):
+    async def update_embed(self, itc: discord.Interaction, description: str, reveal_dice: bool = False, color: int = 0x450707):
         embed = discord.Embed(
             title='페루도', 
             description=description, 
-            color=0x450707
+            color=color
         )
         embed.add_field(
             name='참가자', 
@@ -175,7 +175,7 @@ class PerudoGameManager:
         await itc.followup.send(embed=self.game_embed())
         async for msg in itc.channel.history(limit=1):
             self.root_msg = msg
-            self.thread = await msg.create_thread(name='페루도')
+            self.thread = await msg.create_thread(name='게임 보기')
 
         self.game = PerudoGame(self.players, self.max_dice, self.thread, self.round_finished)
         await self.game.start(itc)
