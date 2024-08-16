@@ -22,9 +22,14 @@ async def delete(ctx: commands.Context, n: int = 0):
 @bot.command(name='sync')
 async def sync(ctx: commands.Context):
     print('sync start')
-    await bot.tree.sync(guild=ctx.guild)
+    await bot.tree.sync()
     print('sync complete')
     
+@bot.command(name='reset')
+async def reset(ctx: commands.Context):
+    Perudo.games.clear()
+    Perudo.recruits.clear()
+    print('reset complete')
 
 @bot.command(name='thread-test')
 async def embed_test(ctx: commands.Context):
