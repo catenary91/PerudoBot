@@ -39,7 +39,8 @@ class PerudoBettingManager:
     def __init__(self, prev: PerudoBetting | None = None):
         self.prev = prev
 
-    async def start(self, itc: discord.Interaction, callback):
+    async def start(self, itc: discord.Interaction, thread: discord.Thread, callback):
+        self.thread = thread
         self.callback = callback
         self.view = ui.View()
 
@@ -68,7 +69,7 @@ class PerudoBettingManager:
             self.view.add_item(self.less_btn)
             self.view.add_item(self.equal_btn)
 
-        self.msg = await itc.followup.send('베팅을 선택해주세요.', view=self.view, ephemeral=True, wait=True)
+        self.msg = await itc.followup.send('베팅을 선택해주세요.', view=self.view, ephemeral=True, wait=True, thread=self.thread)
 
     async def select_num(self, itc: discord.Interaction):
         num_select = self.num_select.values[0]

@@ -19,10 +19,8 @@ class PerudoRecruitManager:
         view.add_item(apply_btn)
         view.add_item(apply_cancel_btn)
 
-        await itc.followup.send(embed=embed, view=view)
-        async for msg in itc.channel.history(limit=1):
-            self.msg = msg
-
+        self.msg = await itc.followup.send(embed=embed, view=view)
+        
     def create_embed(self):
         embed = discord.Embed(title='페루도', description=f'{self.starter.mention}님이 새로운 페루도 게임을 모집합니다.', color=0x450707)
         embed.add_field(name='최소 인원', value='2명', inline=True)
